@@ -1,0 +1,12 @@
+/*
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 0
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i1.sndcdn.com https://i2.sndcdn.com https://i3.sndcdn.com; connect-src 'self' https://challenges.cloudflare.com; frame-src https://w.soundcloud.com; font-src 'self'; worker-src 'none'; manifest-src 'self'
+
+/booking
+  Access-Control-Allow-Origin: https://www.djm3di.com
+  Access-Control-Allow-Methods: POST, OPTIONS
+  Access-Control-Allow-Headers: Content-Type

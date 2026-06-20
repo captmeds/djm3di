@@ -1,0 +1,527 @@
+---
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
+
+const currencies = ['USD', 'EUR', 'GBP', 'SGD', 'MYR', 'IDR', 'PHP', 'THB', 'AUD', 'JPY', 'CAD'];
+const eventTypes = [
+  'Club night', 'Festival', 'Private party', 'Corporate / Brand',
+  'Wedding', 'Warehouse / Rave', 'Pool / Beach', 'Boat', 'Other',
+];
+const setTypes = ['DJ set', 'Live set', 'B2B', 'Hybrid', 'Open-to-close'];
+const genres = ['House', 'Tech House', 'Techno', 'Trance', 'Progressive', 'Open format'];
+const roles = ['Promoter', 'Agency', 'Brand', 'Private', 'Venue', 'Festival Organisation'];
+const contactMethods = ['Email', 'WhatsApp', 'Phone'];
+const coverageOptions = ['Yes', 'No', 'To discuss'];
+const hearOptions = [
+  'SoundCloud', 'Instagram', 'Spotify', 'YouTube', 'Referral', 'Search engine',
+  'Beatport', 'Mixcloud', 'Other',
+];
+---
+
+<section id="bookings" class="py-24 px-4 sm:px-6 lg:px-8 bg-void">
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="mb-12 reveal">
+      <p class="font-mono text-accent text-xs tracking-ultrawide uppercase mb-3">/ 03</p>
+      <h2 class="font-display font-bold text-4xl md:text-5xl text-white tracking-wide mb-4">
+        Book DJ M3DI
+      </h2>
+      <p class="text-text-secondary max-w-xl">
+        International bookings, private and corporate events, festivals, and club nights.
+        Fill in as much detail as possible — a complete brief gets the fastest response.
+      </p>
+    </div>
+
+    <!-- Form -->
+    <form
+      id="booking-form"
+      class="reveal"
+      novalidate
+      aria-label="DJ booking inquiry form"
+    >
+      <!-- Honeypot — hidden from real users, visible to bots -->
+      <div aria-hidden="true" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">
+        <label for="website">Website</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <!-- ── CONTACT ── -->
+      <fieldset class="form-section mb-8">
+        <legend class="form-legend">Contact</legend>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="field-group md:col-span-2">
+            <label for="full_name" class="field-label">Full name <span class="required">*</span></label>
+            <input type="text" id="full_name" name="full_name" required autocomplete="name" class="field-input" placeholder="Jane Smith" />
+            <span class="field-error" id="full_name-error" role="alert"></span>
+          </div>
+          <div class="field-group">
+            <label for="email" class="field-label">Email <span class="required">*</span></label>
+            <input type="email" id="email" name="email" required autocomplete="email" class="field-input" placeholder="jane@agency.com" />
+            <span class="field-error" id="email-error" role="alert"></span>
+          </div>
+          <div class="field-group">
+            <label for="phone" class="field-label">Phone / WhatsApp <span class="text-text-dim">(with country code)</span></label>
+            <input type="tel" id="phone" name="phone" autocomplete="tel" class="field-input" placeholder="+65 9000 0000" />
+          </div>
+          <div class="field-group">
+            <label for="company" class="field-label">Company / Promoter / Agency</label>
+            <input type="text" id="company" name="company" class="field-input" placeholder="Beats & Promotions Ltd" />
+          </div>
+          <div class="field-group">
+            <label for="role" class="field-label">Your role</label>
+            <select id="role" name="role" class="field-select">
+              <option value="">Select role</option>
+              {roles.map(r => <option value={r}>{r}</option>)}
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="contact_method" class="field-label">Preferred contact method</label>
+            <select id="contact_method" name="contact_method" class="field-select">
+              {contactMethods.map(m => <option value={m}>{m}</option>)}
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="country" class="field-label">Your country <span class="required">*</span></label>
+            <input type="text" id="country" name="country" required autocomplete="country-name" class="field-input" placeholder="Singapore" />
+            <span class="field-error" id="country-error" role="alert"></span>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- ── EVENT DETAILS ── -->
+      <fieldset class="form-section mb-8">
+        <legend class="form-legend">Event Details</legend>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="field-group md:col-span-2">
+            <label for="event_name" class="field-label">Event / party name</label>
+            <input type="text" id="event_name" name="event_name" class="field-input" placeholder="Subsonic Saturday" />
+          </div>
+          <div class="field-group">
+            <label for="event_type" class="field-label">Event type <span class="required">*</span></label>
+            <select id="event_type" name="event_type" required class="field-select">
+              <option value="">Select type</option>
+              {eventTypes.map(t => <option value={t}>{t}</option>)}
+            </select>
+            <span class="field-error" id="event_type-error" role="alert"></span>
+          </div>
+          <div class="field-group">
+            <label for="event_date" class="field-label">Event date <span class="required">*</span></label>
+            <input type="date" id="event_date" name="event_date" required class="field-input" />
+            <span class="field-error" id="event_date-error" role="alert"></span>
+            <label class="mt-2 flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="flexible_date" name="flexible_date" class="field-checkbox" />
+              <span class="font-mono text-xs text-text-secondary tracking-wide">Date is flexible</span>
+            </label>
+          </div>
+          <div class="field-group">
+            <label for="venue_name" class="field-label">Venue name</label>
+            <input type="text" id="venue_name" name="venue_name" class="field-input" placeholder="Club XYZ" />
+          </div>
+          <div class="field-group">
+            <label for="venue_city" class="field-label">Venue city <span class="required">*</span></label>
+            <input type="text" id="venue_city" name="venue_city" required class="field-input" placeholder="Jakarta" />
+            <span class="field-error" id="venue_city-error" role="alert"></span>
+          </div>
+          <div class="field-group">
+            <label for="venue_country" class="field-label">Venue country <span class="required">*</span></label>
+            <input type="text" id="venue_country" name="venue_country" required class="field-input" placeholder="Indonesia" />
+            <span class="field-error" id="venue_country-error" role="alert"></span>
+          </div>
+          <div class="field-group">
+            <label for="attendance" class="field-label">Expected attendance / capacity</label>
+            <input type="text" id="attendance" name="attendance" class="field-input" placeholder="500–1000" />
+          </div>
+          <div class="field-group">
+            <label for="indoor_outdoor" class="field-label">Indoor / Outdoor</label>
+            <select id="indoor_outdoor" name="indoor_outdoor" class="field-select">
+              <option value="">Select</option>
+              <option>Indoor</option>
+              <option>Outdoor</option>
+              <option>Mixed</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- ── PERFORMANCE ── -->
+      <fieldset class="form-section mb-8">
+        <legend class="form-legend">Performance</legend>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="field-group">
+            <label for="set_type" class="field-label">Set type</label>
+            <select id="set_type" name="set_type" class="field-select">
+              <option value="">Select</option>
+              {setTypes.map(s => <option value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="set_length" class="field-label">Requested set length (hours)</label>
+            <input type="number" id="set_length" name="set_length" min="1" max="12" step="0.5" class="field-input" placeholder="2" />
+          </div>
+          <div class="field-group md:col-span-2">
+            <label for="set_slot" class="field-label">Preferred set time slot</label>
+            <input type="text" id="set_slot" name="set_slot" class="field-input" placeholder="e.g. Peak time (01:00–03:00), Headline / Closing" />
+          </div>
+          <div class="field-group md:col-span-2">
+            <fieldset>
+              <legend class="field-label mb-2">Genres requested</legend>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {genres.map(g => (
+                  <label class="flex items-center gap-2 cursor-pointer group/cb">
+                    <input type="checkbox" name="genres" value={g} class="field-checkbox" />
+                    <span class="font-mono text-xs text-text-secondary group-hover/cb:text-white tracking-wide transition-colors">{g}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          </div>
+          <div class="field-group md:col-span-2">
+            <label for="other_artists" class="field-label">Other artists on the lineup</label>
+            <input type="text" id="other_artists" name="other_artists" class="field-input" placeholder="DJ A, DJ B, ..." />
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- ── COMMERCIALS & LOGISTICS ── -->
+      <fieldset class="form-section mb-8">
+        <legend class="form-legend">Commercials &amp; Logistics</legend>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="field-group">
+            <label for="budget" class="field-label">Budget / offered fee</label>
+            <div class="flex gap-2">
+              <select id="budget_currency" name="budget_currency" class="field-select w-28 shrink-0" aria-label="Currency">
+                {currencies.map(c => <option value={c}>{c}</option>)}
+              </select>
+              <input type="number" id="budget" name="budget" min="0" class="field-input flex-1" placeholder="5000" />
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="travel_covered" class="field-label">Travel covered?</label>
+            <select id="travel_covered" name="travel_covered" class="field-select">
+              {coverageOptions.map(o => <option value={o}>{o}</option>)}
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="accommodation_covered" class="field-label">Accommodation covered?</label>
+            <select id="accommodation_covered" name="accommodation_covered" class="field-select">
+              {coverageOptions.map(o => <option value={o}>{o}</option>)}
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="visa_assistance" class="field-label">Visa / work-permit assistance?</label>
+            <select id="visa_assistance" name="visa_assistance" class="field-select">
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+              <option value="N/A">N/A</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="sound_system" class="field-label">Sound system / backline provided?</label>
+            <select id="sound_system" name="sound_system" class="field-select">
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+              <option value="Standard club rig">Standard club rig</option>
+            </select>
+          </div>
+          <div class="field-group flex items-end pb-1">
+            <label class="flex items-start gap-2 cursor-pointer">
+              <input type="checkbox" id="rider_acknowledged" name="rider_acknowledged" class="field-checkbox mt-0.5" />
+              <span class="font-mono text-xs text-text-secondary tracking-wide leading-relaxed">
+                Technical rider acknowledged — we understand DJ M3DI has standard technical requirements.
+              </span>
+            </label>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- ── EXTRAS ── -->
+      <fieldset class="form-section mb-8">
+        <legend class="form-legend">Additional Info</legend>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="field-group">
+            <label for="hear_about" class="field-label">How did you hear about DJ M3DI?</label>
+            <select id="hear_about" name="hear_about" class="field-select">
+              <option value="">Select</option>
+              {hearOptions.map(h => <option value={h}>{h}</option>)}
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="event_link" class="field-label">Event / social / ticket link</label>
+            <input type="url" id="event_link" name="event_link" class="field-input" placeholder="https://..." />
+          </div>
+          <div class="field-group md:col-span-2">
+            <label for="message" class="field-label">Additional message / notes</label>
+            <textarea id="message" name="message" rows="4" class="field-input resize-none" placeholder="Anything else we should know about this booking..."></textarea>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- ── CONSENT + TURNSTILE + SUBMIT ── -->
+      <div class="space-y-5">
+        <label class="flex items-start gap-3 cursor-pointer group">
+          <input
+            type="checkbox"
+            id="consent"
+            name="consent"
+            required
+            class="field-checkbox mt-0.5 shrink-0"
+          />
+          <span class="font-mono text-xs text-text-secondary tracking-wide leading-relaxed group-hover:text-white transition-colors">
+            I agree to be contacted regarding this booking. <span class="required">*</span>
+          </span>
+        </label>
+        <span class="field-error block" id="consent-error" role="alert"></span>
+
+        <!-- Turnstile widget -->
+        <div>
+          <div
+            class="cf-turnstile"
+            data-sitekey={turnstileSiteKey || '1x00000000000000000000AA'}
+            data-theme="dark"
+            data-action="turnstile-spin-v1"
+            id="turnstile-widget"
+            aria-label="Anti-spam verification"
+          ></div>
+          {!turnstileSiteKey && (
+            <p class="font-mono text-xs text-accent/60 mt-2">
+              ⚠ Turnstile site key not set — add PUBLIC_TURNSTILE_SITE_KEY to .env
+            </p>
+          )}
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <button
+            type="submit"
+            id="submit-btn"
+            class="inline-flex items-center gap-3 px-10 py-4 bg-accent text-void font-display font-semibold text-sm tracking-widest uppercase hover:bg-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-accent"
+          >
+            <span id="submit-label">Send Inquiry</span>
+            <span id="submit-spinner" class="hidden">
+              <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+            </span>
+          </button>
+          <p class="font-mono text-xs text-text-dim">All fields marked <span class="required">*</span> are required.</p>
+        </div>
+      </div>
+
+      <!-- Status messages -->
+      <div id="form-success" class="hidden mt-8 p-6 border border-accent/40 bg-accent/5" role="status" aria-live="polite">
+        <p class="font-display font-semibold text-accent tracking-wide mb-1">Inquiry received.</p>
+        <p class="font-body text-text-secondary text-sm">M3DI's team will review your booking and be in touch shortly.</p>
+      </div>
+      <div id="form-error" class="hidden mt-8 p-6 border border-red-500/40 bg-red-500/5" role="alert" aria-live="assertive">
+        <p class="font-display font-semibold text-red-400 tracking-wide mb-1">Submission failed.</p>
+        <p id="form-error-text" class="font-body text-text-secondary text-sm">Something went wrong. Please try again or contact directly via SoundCloud.</p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<style>
+  .form-section {
+    @apply border border-border bg-surface-1 p-6;
+  }
+  .form-legend {
+    @apply font-mono text-xs tracking-ultrawide uppercase text-accent px-2 -ml-2 mb-6;
+  }
+  .field-label {
+    @apply block font-mono text-xs tracking-widest uppercase text-text-secondary mb-2;
+  }
+  .required {
+    @apply text-accent;
+  }
+  .field-input {
+    @apply w-full bg-surface-2 border border-border text-white font-body text-sm px-4 py-3
+           placeholder:text-text-dim focus:outline-none focus:border-accent transition-colors duration-200;
+  }
+  .field-input.invalid {
+    @apply border-red-500;
+  }
+  .field-select {
+    @apply w-full bg-surface-2 border border-border text-white font-body text-sm px-4 py-3
+           focus:outline-none focus:border-accent transition-colors duration-200 appearance-none
+           bg-no-repeat;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239A9A9F' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+  .field-checkbox {
+    @apply w-4 h-4 bg-surface-2 border border-border text-accent
+           focus:ring-accent focus:ring-1 focus:ring-offset-0 focus:ring-offset-void
+           accent-[#00E5FF] cursor-pointer;
+  }
+  .field-error {
+    @apply block font-mono text-xs text-red-400 mt-1 min-h-[1em];
+  }
+</style>
+
+<script>
+  const form = document.getElementById('booking-form') as HTMLFormElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+  const submitLabel = document.getElementById('submit-label')!;
+  const submitSpinner = document.getElementById('submit-spinner')!;
+  const successEl = document.getElementById('form-success')!;
+  const errorEl = document.getElementById('form-error')!;
+  const errorText = document.getElementById('form-error-text')!;
+
+  // Required field validators
+  const requiredFields = [
+    { id: 'full_name', errorId: 'full_name-error', msg: 'Full name is required.' },
+    { id: 'email', errorId: 'email-error', msg: 'A valid email address is required.' },
+    { id: 'country', errorId: 'country-error', msg: 'Country is required.' },
+    { id: 'event_type', errorId: 'event_type-error', msg: 'Event type is required.' },
+    { id: 'event_date', errorId: 'event_date-error', msg: 'Event date is required.' },
+    { id: 'venue_city', errorId: 'venue_city-error', msg: 'Venue city is required.' },
+    { id: 'venue_country', errorId: 'venue_country-error', msg: 'Venue country is required.' },
+  ];
+
+  function validateField(id: string, errorId: string, msg: string): boolean {
+    const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement;
+    const errEl = document.getElementById(errorId)!;
+    const valid = el.value.trim().length > 0;
+    if (!valid) {
+      el.classList.add('invalid');
+      errEl.textContent = msg;
+    } else if (id === 'email') {
+      const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim());
+      if (!emailValid) {
+        el.classList.add('invalid');
+        errEl.textContent = 'Enter a valid email address.';
+        return false;
+      } else {
+        el.classList.remove('invalid');
+        errEl.textContent = '';
+      }
+    } else {
+      el.classList.remove('invalid');
+      errEl.textContent = '';
+    }
+    return valid;
+  }
+
+  // Live validation on blur
+  requiredFields.forEach(({ id, errorId, msg }) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('blur', () => validateField(id, errorId, msg));
+      el.addEventListener('input', () => {
+        if (el.classList.contains('invalid')) validateField(id, errorId, msg);
+      });
+    }
+  });
+
+  function setLoading(loading: boolean) {
+    submitBtn.disabled = loading;
+    submitLabel.textContent = loading ? 'Sending...' : 'Send Inquiry';
+    submitSpinner.classList.toggle('hidden', !loading);
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Honeypot check
+    const hp = (form.querySelector('#website') as HTMLInputElement)?.value;
+    if (hp) return;
+
+    // Validate required fields
+    let valid = true;
+    requiredFields.forEach(({ id, errorId, msg }) => {
+      if (!validateField(id, errorId, msg)) valid = false;
+    });
+
+    // Consent check
+    const consent = form.querySelector('#consent') as HTMLInputElement;
+    const consentErr = document.getElementById('consent-error')!;
+    if (!consent.checked) {
+      consentErr.textContent = 'You must agree to be contacted.';
+      valid = false;
+    } else {
+      consentErr.textContent = '';
+    }
+
+    if (!valid) {
+      form.querySelector('.invalid')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    // Get Turnstile token
+    const turnstileInput = form.querySelector('[name="cf-turnstile-response"]') as HTMLInputElement | null;
+    const turnstileToken = turnstileInput?.value ?? '';
+
+    // Collect genres
+    const selectedGenres = Array.from(
+      form.querySelectorAll<HTMLInputElement>('input[name="genres"]:checked')
+    ).map(cb => cb.value);
+
+    // Build payload
+    const data = {
+      full_name: (form.querySelector('#full_name') as HTMLInputElement).value.trim(),
+      email: (form.querySelector('#email') as HTMLInputElement).value.trim(),
+      phone: (form.querySelector('#phone') as HTMLInputElement).value.trim(),
+      company: (form.querySelector('#company') as HTMLInputElement).value.trim(),
+      role: (form.querySelector('#role') as HTMLSelectElement).value,
+      contact_method: (form.querySelector('#contact_method') as HTMLSelectElement).value,
+      country: (form.querySelector('#country') as HTMLInputElement).value.trim(),
+      event_name: (form.querySelector('#event_name') as HTMLInputElement).value.trim(),
+      event_type: (form.querySelector('#event_type') as HTMLSelectElement).value,
+      event_date: (form.querySelector('#event_date') as HTMLInputElement).value,
+      flexible_date: (form.querySelector('#flexible_date') as HTMLInputElement).checked,
+      venue_name: (form.querySelector('#venue_name') as HTMLInputElement).value.trim(),
+      venue_city: (form.querySelector('#venue_city') as HTMLInputElement).value.trim(),
+      venue_country: (form.querySelector('#venue_country') as HTMLInputElement).value.trim(),
+      attendance: (form.querySelector('#attendance') as HTMLInputElement).value.trim(),
+      indoor_outdoor: (form.querySelector('#indoor_outdoor') as HTMLSelectElement).value,
+      set_type: (form.querySelector('#set_type') as HTMLSelectElement).value,
+      set_length: (form.querySelector('#set_length') as HTMLInputElement).value,
+      set_slot: (form.querySelector('#set_slot') as HTMLInputElement).value.trim(),
+      genres: selectedGenres,
+      other_artists: (form.querySelector('#other_artists') as HTMLInputElement).value.trim(),
+      budget_currency: (form.querySelector('#budget_currency') as HTMLSelectElement).value,
+      budget: (form.querySelector('#budget') as HTMLInputElement).value,
+      travel_covered: (form.querySelector('#travel_covered') as HTMLSelectElement).value,
+      accommodation_covered: (form.querySelector('#accommodation_covered') as HTMLSelectElement).value,
+      visa_assistance: (form.querySelector('#visa_assistance') as HTMLSelectElement).value,
+      sound_system: (form.querySelector('#sound_system') as HTMLSelectElement).value,
+      rider_acknowledged: (form.querySelector('#rider_acknowledged') as HTMLInputElement).checked,
+      hear_about: (form.querySelector('#hear_about') as HTMLSelectElement).value,
+      event_link: (form.querySelector('#event_link') as HTMLInputElement).value.trim(),
+      message: (form.querySelector('#message') as HTMLTextAreaElement).value.trim(),
+      turnstile_token: turnstileToken,
+    };
+
+    setLoading(true);
+    successEl.classList.add('hidden');
+    errorEl.classList.add('hidden');
+
+    try {
+      const res = await fetch('/booking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const json = await res.json() as { success: boolean; message?: string };
+
+      if (res.ok && json.success) {
+        successEl.classList.remove('hidden');
+        form.reset();
+        successEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        // Reset Turnstile
+        if (typeof window !== 'undefined' && (window as unknown as Record<string, unknown>)['turnstile']) {
+          (window as unknown as Record<string, { reset: () => void }>)['turnstile'].reset();
+        }
+      } else {
+        errorText.textContent = json.message ?? 'Submission failed. Please try again.';
+        errorEl.classList.remove('hidden');
+        errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    } catch {
+      errorText.textContent = 'Network error. Check your connection and try again.';
+      errorEl.classList.remove('hidden');
+    } finally {
+      setLoading(false);
+    }
+  });
+</script>

@@ -1,0 +1,17 @@
+{
+  "name": "DJ M3DI",
+  "short_name": "DJ M3DI",
+  "description": "International DJ — House, Tech House, Techno, Trance, Progressive",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070708",
+  "theme_color": "#070708",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

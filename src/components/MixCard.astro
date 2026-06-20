@@ -1,0 +1,120 @@
+---
+export interface Props {
+  id: number;
+  title: string;
+  url: string;
+}
+
+const { id, title, url } = Astro.props;
+
+const embedUrl = `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%2300e5ff&inverse=false&auto_play=false&show_user=true&show_artwork=true`;
+const trackNum = String(id).padStart(2, '0');
+---
+
+<article
+  class="mix-card group relative bg-surface-1 border border-border hover:border-accent/40 transition-all duration-300"
+  data-embed={embedUrl}
+  aria-label={`Mix: ${title}`}
+>
+  <!-- Track number -->
+  <div class="absolute top-3 right-3 font-mono text-xs text-text-dim tracking-widest z-10" aria-hidden="true">
+    {trackNum}
+  </div>
+
+  <!-- Player area: lazy-load iframe on click or scroll -->
+  <div class="player-container relative bg-void" style="height: 166px;">
+    <!-- Placeholder shown before iframe loads -->
+    <div class="player-placeholder absolute inset-0 flex items-center justify-center cursor-pointer group/play" role="button" tabindex="0" aria-label={`Load player for ${title}`}>
+      <div class="flex flex-col items-center gap-3 text-text-secondary group-hover/play:text-accent transition-colors">
+        <div class="w-14 h-14 rounded-full border border-current flex items-center justify-center text-xl group-hover/play:border-accent group-hover/play:shadow-glow-sm transition-all duration-200">
+          ▷
+        </div>
+        <span class="font-mono text-xs tracking-widest uppercase">Load Player</span>
+      </div>
+    </div>
+    <!-- Iframe injected here by JS -->
+  </div>
+
+  <!-- Info -->
+  <div class="px-4 py-3 border-t border-border">
+    <h3 class="font-display font-semibold text-sm text-white tracking-wide truncate mb-3">
+      {title}
+    </h3>
+    <div class="flex items-center gap-2">
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex-1 text-center font-mono text-xs tracking-widest uppercase py-2 border border-accent/40 text-accent/80 hover:border-accent hover:text-accent hover:shadow-glow-sm transition-all duration-200"
+        aria-label={`Stream ${title} on SoundCloud`}
+      >
+        Stream
+      </a>
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex-1 text-center font-mono text-xs tracking-widest uppercase py-2 border border-border text-text-secondary hover:border-accent/40 hover:text-white transition-all duration-200"
+        aria-label={`Download ${title} on SoundCloud (if enabled)`}
+      >
+        Download
+      </a>
+    </div>
+  </div>
+</article>
+
+<script>
+  // Lazy-load SoundCloud players via Intersection Observer + click
+  function initMixCard(card: Element) {
+    const container = card.querySelector('.player-container') as HTMLElement;
+    const placeholder = card.querySelector('.player-placeholder') as HTMLElement;
+    const embedUrl = card.getAttribute('data-embed')!;
+    let loaded = false;
+
+    function loadIframe() {
+      if (loaded) return;
+      loaded = true;
+      placeholder.style.display = 'none';
+      const iframe = document.createElement('iframe');
+      iframe.width = '100%';
+      iframe.height = '166';
+      iframe.scrolling = 'no';
+      iframe.setAttribute('frameborder', 'no');
+      iframe.setAttribute('loading', 'lazy');
+      iframe.setAttribute('allow', 'autoplay');
+      iframe.src = embedUrl;
+      iframe.title = (card.getAttribute('aria-label') || 'SoundCloud player');
+      container.appendChild(iframe);
+    }
+
+    // Click on placeholder
+    placeholder.addEventListener('click', loadIframe);
+    placeholder.addEventListener('keydown', (e) => {
+      if ((e as KeyboardEvent).key === 'Enter' || (e as KeyboardEvent).key === ' ') {
+        e.preventDefault();
+        loadIframe();
+      }
+    });
+
+    // Auto-load when scrolled into view
+    if ('IntersectionObserver' in window) {
+      const obs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              // Slight delay to avoid loading all at once on scroll
+              setTimeout(loadIframe, 200);
+              obs.disconnect();
+            }
+          });
+        },
+        { rootMargin: '200px' }
+      );
+      obs.observe(card);
+    } else {
+      loadIframe();
+    }
+  }
+
+  document.querySelectorAll('.mix-card').forEach(initMixCard);
+</script>

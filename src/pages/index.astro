@@ -1,0 +1,37 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import MixesSection from '../components/MixesSection.astro';
+import AboutSection from '../components/AboutSection.astro';
+import BookingForm from '../components/BookingForm.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout>
+  <Nav />
+  <main>
+    <Hero />
+    <MixesSection />
+    <AboutSection />
+    <BookingForm />
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  // Scroll reveal for .reveal elements
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+  );
+
+  document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+</script>

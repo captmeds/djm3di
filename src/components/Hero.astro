@@ -1,0 +1,196 @@
+---
+// No props needed
+---
+
+<section
+  id="home"
+  class="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
+  aria-label="Hero"
+>
+  <!-- EQ Canvas — signature element -->
+  <canvas
+    id="eq-canvas"
+    class="absolute inset-0 w-full h-full"
+    aria-hidden="true"
+  ></canvas>
+
+  <!-- Radial fade overlay to keep text readable -->
+  <div
+    class="absolute inset-0 bg-radial-fade pointer-events-none"
+    aria-hidden="true"
+  ></div>
+
+  <!-- Scanline effect -->
+  <div class="scanlines absolute inset-0 pointer-events-none" aria-hidden="true"></div>
+
+  <!-- Content -->
+  <div class="relative z-10 text-center px-4 max-w-5xl mx-auto">
+    <!-- Genre label -->
+    <p class="font-mono text-accent text-xs tracking-ultrawide uppercase mb-8 opacity-80">
+      Underground · House · Techno · Trance
+    </p>
+
+    <!-- Name wordmark -->
+    <h1 class="font-display font-bold leading-none tracking-widest mb-2 select-none">
+      <span class="block text-7xl sm:text-8xl md:text-9xl lg:text-[11rem] text-white drop-shadow-[0_0_40px_rgba(0,229,255,0.15)]">
+        DJ M3DI
+      </span>
+    </h1>
+
+    <!-- Divider line -->
+    <div class="flex items-center justify-center gap-4 my-8">
+      <div class="h-px flex-1 max-w-24 bg-gradient-to-r from-transparent to-accent/40"></div>
+      <span class="font-mono text-accent text-xs tracking-widest">▶ LIVE SET</span>
+      <div class="h-px flex-1 max-w-24 bg-gradient-to-l from-transparent to-accent/40"></div>
+    </div>
+
+    <!-- Tagline -->
+    <p class="font-body text-text-secondary text-lg md:text-xl max-w-xl mx-auto mb-10 font-light">
+      International DJ. Crafting relentless energy for underground floors, festival stages, and everything in between.
+    </p>
+
+    <!-- CTAs -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+      <a
+        href="#mixes"
+        class="group inline-flex items-center gap-3 px-8 py-4 bg-accent text-void font-display font-semibold text-sm tracking-widest uppercase hover:bg-white transition-colors duration-200 focus-visible:outline-accent"
+      >
+        <span class="text-lg leading-none">▷</span>
+        Listen Now
+      </a>
+      <a
+        href="#bookings"
+        class="inline-flex items-center gap-3 px-8 py-4 border border-accent/60 text-accent font-display font-semibold text-sm tracking-widest uppercase hover:border-accent hover:shadow-glow transition-all duration-200 focus-visible:outline-accent"
+      >
+        Book M3DI
+      </a>
+    </div>
+
+    <!-- Stats row -->
+    <div class="flex items-center justify-center gap-8 mt-16 opacity-60">
+      <div class="text-center">
+        <div class="font-display font-bold text-2xl text-white tabular-nums">33+</div>
+        <div class="font-mono text-xs text-text-secondary tracking-widest uppercase mt-0.5">Mixes</div>
+      </div>
+      <div class="w-px h-10 bg-border"></div>
+      <div class="text-center">
+        <div class="font-display font-bold text-2xl text-white">5</div>
+        <div class="font-mono text-xs text-text-secondary tracking-widest uppercase mt-0.5">Genres</div>
+      </div>
+      <div class="w-px h-10 bg-border"></div>
+      <div class="text-center">
+        <div class="font-display font-bold text-2xl text-white">INT'L</div>
+        <div class="font-mono text-xs text-text-secondary tracking-widest uppercase mt-0.5">Bookings</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40" aria-hidden="true">
+    <span class="font-mono text-xs text-text-secondary tracking-widest">SCROLL</span>
+    <div class="w-px h-12 bg-gradient-to-b from-accent to-transparent animate-pulse"></div>
+  </div>
+</section>
+
+<style>
+  .bg-radial-fade {
+    background: radial-gradient(
+      ellipse 70% 60% at 50% 50%,
+      rgba(7, 7, 8, 0.7) 0%,
+      rgba(7, 7, 8, 0.85) 50%,
+      rgba(7, 7, 8, 0.97) 100%
+    );
+  }
+
+  .scanlines {
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px
+    );
+  }
+</style>
+
+<script>
+  const canvas = document.getElementById('eq-canvas') as HTMLCanvasElement;
+  const ctx = canvas.getContext('2d')!;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const BAR_COUNT = 80;
+  const BAR_GAP = 2;
+  const ACCENT = '#00E5FF';
+
+  interface Bar {
+    current: number;
+    target: number;
+    speed: number;
+  }
+
+  const bars: Bar[] = Array.from({ length: BAR_COUNT }, () => ({
+    current: Math.random() * 0.5 + 0.05,
+    target: Math.random() * 0.7 + 0.05,
+    speed: Math.random() * 0.04 + 0.01,
+  }));
+
+  function resize() {
+    canvas.width = canvas.offsetWidth * window.devicePixelRatio;
+    canvas.height = canvas.offsetHeight * window.devicePixelRatio;
+  }
+
+  function draw() {
+    const { width, height } = canvas;
+    ctx.clearRect(0, 0, width, height);
+
+    const totalBarWidth = (width - BAR_GAP * (BAR_COUNT - 1)) / BAR_COUNT;
+    const barWidth = Math.max(1, totalBarWidth - 1);
+
+    bars.forEach((bar, i) => {
+      if (!prefersReduced) {
+        // Ease toward target
+        bar.current += (bar.target - bar.current) * bar.speed;
+        // Occasionally pick a new target
+        if (Math.random() < 0.005) {
+          bar.target = Math.random() * 0.85 + 0.03;
+        }
+        // Mid-section bars tend higher (simulating bass/mid presence)
+        const center = 0.5;
+        const dist = Math.abs(i / BAR_COUNT - center);
+        bar.target *= 1 - dist * 0.4;
+      }
+
+      const barH = bar.current * height;
+      const x = i * (totalBarWidth + BAR_GAP);
+      const y = height - barH;
+
+      // Gradient per bar
+      const grad = ctx.createLinearGradient(0, y, 0, height);
+      grad.addColorStop(0, `rgba(0, 229, 255, ${bar.current * 0.9})`);
+      grad.addColorStop(0.6, `rgba(0, 163, 180, ${bar.current * 0.5})`);
+      grad.addColorStop(1, `rgba(0, 229, 255, 0.02)`);
+
+      ctx.fillStyle = grad;
+      ctx.fillRect(x, y, barWidth, barH);
+
+      // Top glow pixel
+      ctx.fillStyle = `rgba(0, 229, 255, ${bar.current})`;
+      ctx.fillRect(x, y, barWidth, 2);
+    });
+  }
+
+  function loop() {
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  if (prefersReduced) {
+    bars.forEach(b => { b.current = 0.3 + Math.random() * 0.2; });
+    draw();
+  } else {
+    loop();
+  }
+</script>
